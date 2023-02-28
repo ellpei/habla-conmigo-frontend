@@ -1,17 +1,28 @@
-import React, { Component } from 'react';
-
-import logo from './logo.svg';
+import React from 'react';
+import {
+  BrowserRouter,
+  Routes,
+  Route
+} from 'react-router-dom';
 import './App.css';
 import Home from './Home';
+import GamePlay from './components/GamePlay';
+import Layout from './components/Layout';
 
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <Home/>
-      </header>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="gameplay" element={<GamePlay />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </div>
+    
   );
 }
 
