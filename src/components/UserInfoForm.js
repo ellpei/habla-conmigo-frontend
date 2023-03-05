@@ -1,47 +1,86 @@
-import React from 'react';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
-import GoToSessionButton from './GoToSessionButton';
-  
-class UserInfoForm extends React.Component {
+import React, { useState } from 'react';
+import {Button, Container, Form, Col, Row}  from 'react-bootstrap';
+import {useNavigate} from 'react-router-dom';
 
+function UserInfoForm () {
 
-    render(props) {
+    const [username, setUsername] = useState("");
+    const [language, setLanguage] = useState("swedish");
+    const [sessionId, setSessionId] = useState("ABC");
 
-        return (
-            <div className="user-info-form">
-            <Form>
-                <Row className="mb-3">
-                    <Form.Group as={Col} controlId="formGridEmail">
-                        <Form.Control type="text" placeholder="username" />
+    const navigate = useNavigate();
+
+    const createAndGoToSession = async () => {
+        const sessionData = await createSession();
+        if (sessionData) {
+            navigate('/gameplay', {
+            state: {
+                sessionId: sessionData.sessionId,
+                username: username,
+                preferred_language: language,
+            },
+            });
+        }
+    }
+    const createSession = async () => {
+        try {
+          const response = await fetch('http://localhost:8080/session/create/', {
+            method: 'POST',
+            body: '{}',
+            headers: { 'Content-type': 'application/json' },
+          });
+          console.log(response);
+          setSessionId(response.sessionId);
+          return response;
+        } catch (error) {
+          console.log(error.message);
+          return null;
+        }
+    };
+
+    const goToJoinSessionForm = () => {
+        navigate(
+            '/joinSession',
+            {
+                state: { 
+                    username: username, 
+                    language: language
+                }
+            }
+        );
+    }
+
+    return (
+        <div className="user-info-form">
+            <Container className="d-flex justify-content-center my-3">
+                <Form style={{ width: "300px" }}>
+                    <Form.Group controlId="formUsername" className="my-3" >
+                    <Form.Control type="text" placeholder="username" 
+                        onChange={(e) => {setUsername(e.target.value)}}/>
                     </Form.Group>
-
-                    <Form.Group as={Col} controlId="formGridPassword">
-                        <Form.Select aria-label="select-native-language">
+                    <Form.Group controlId="formGridLanguage" className="my-3">
+                        <Form.Select aria-label="select-native-language"
+                            onChange={(e) => {setLanguage(e.target.value)}} >
                             <option value="swedish">Swedish</option>
                             <option value="spanish">Spanish</option>
                         </Form.Select>
                     </Form.Group>
-                </Row>
-
-                <Row className="mb-1">
-                    <Form.Group as={Col} controlId="formGridCity">
-                        <GoToSessionButton >
+                    <Row>
+                    <Col>
+                        <Button variant="primary" onClick={createAndGoToSession}>
                             Create session
-                        </GoToSessionButton>
-                    </Form.Group>
-                        or
-                    <Form.Group as={Col} controlId="formGridState">
-                        <Button variant="light" type="submit">
-                            Join session
                         </Button>
-                    </Form.Group>
-                </Row>
-            </Form>
-            </div>
-        );
-    }
+                    </Col>
+                    <Col>
+                        <Button variant="light" onClick={goToJoinSessionForm}>
+                        Join session
+                        </Button>
+                    </Col>
+                    </Row>
+                </Form>
+            </Container>
+        </div>
+    );
+    
 }
 export default UserInfoForm;
