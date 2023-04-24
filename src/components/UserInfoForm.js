@@ -6,32 +6,43 @@ function UserInfoForm () {
 
     const [username, setUsername] = useState("");
     const [language, setLanguage] = useState("swedish");
+    const [numDesiredWords, setNumDesiredWords] = useState(10);
+
     const [sessionId, setSessionId] = useState("ABC");
 
     const navigate = useNavigate();
 
     const createAndGoToSession = async () => {
-        const sessionData = await createSession();
-        if (sessionData) {
+        const createdId = await createSession();
+        if (createdId) {
             navigate('/gameplay', {
             state: {
-                sessionId: sessionData.sessionId,
+                sessionId: createdId,
                 username: username,
-                preferred_language: language,
+                preferredLanguage: language,
+                numDesiredWords: numDesiredWords
             },
             });
         }
     }
     const createSession = async () => {
+        const requestBody = {
+            "username": username,
+            "nativeLanguage": language,
+            "numDesiredWords": numDesiredWords
+            };
+        console.log(requestBody);
+
         try {
           const response = await fetch('http://localhost:8080/session/create/', {
             method: 'POST',
-            body: '{}',
+            body:  JSON.stringify(requestBody),
             headers: { 'Content-type': 'application/json' },
           });
-          console.log(response);
-          setSessionId(response.sessionId);
-          return response;
+          const sessionId = await response.text();
+          console.log("Created session with ID " + sessionId);
+          setSessionId(sessionId);
+          return sessionId;
         } catch (error) {
           console.log(error.message);
           return null;
