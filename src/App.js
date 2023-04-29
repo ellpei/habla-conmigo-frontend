@@ -18,8 +18,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
-            <Route path="gameplay" element={<GamePlay />} />
-            <Route path="joinsession" element={<JoinSessionForm/>} />
+            <Route path="gameplay/:id" element={<GamePlay />} ></Route>
+            <Route path="join" element={<JoinSessionForm/>} ></Route>
           </Route>
         </Routes>
       </BrowserRouter>
